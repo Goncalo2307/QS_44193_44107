@@ -1,7 +1,8 @@
 package com.eduscrum.qs.backend.domain.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -11,30 +12,22 @@ import java.util.List;
 @Table(name = "sprints")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Sprint {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    @Column(nullable = false)
+    private String title;
 
-    private String goal;
-
-    @Column(name = "start_date")
     private LocalDate startDate;
-
-    @Column(name = "end_date")
     private LocalDate endDate;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "project_id", nullable = false, foreignKey = @ForeignKey(name = "fk_sprints_project"))
-    private ProjectWorkspace project;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "workspace_id", nullable = false)
+    private ProjectWorkspace projectWorkspace;
 
     @OneToMany(mappedBy = "sprint", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private List<Task> tasks = new ArrayList<>();
 }

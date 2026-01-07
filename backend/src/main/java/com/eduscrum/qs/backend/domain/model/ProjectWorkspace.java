@@ -1,7 +1,8 @@
 package com.eduscrum.qs.backend.domain.model;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +11,6 @@ import java.util.List;
 @Table(name = "project_workspaces")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class ProjectWorkspace {
 
     @Id
@@ -22,19 +20,18 @@ public class ProjectWorkspace {
     @Column(nullable = false)
     private String name;
 
+    @Column(length = 2000)
     private String description;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "course_id", nullable = false, foreignKey = @ForeignKey(name = "fk_project_workspaces_course"))
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "course_id", nullable = false)
     private AcademicCourse course;
 
-    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
+
+    @OneToMany(mappedBy = "projectWorkspace", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Sprint> sprints = new ArrayList<>();
 
-    /**
-     * Mantemos a lógica do projeto original: 1 projeto -> 1 equipa principal.
-     */
-    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private ScrumTeam team;
+
+    @OneToMany(mappedBy = "projectWorkspace", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ScrumTeam> teams = new ArrayList<>();
 }

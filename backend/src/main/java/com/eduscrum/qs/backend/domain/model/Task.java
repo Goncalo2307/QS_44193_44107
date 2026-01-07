@@ -2,15 +2,13 @@ package com.eduscrum.qs.backend.domain.model;
 
 import com.eduscrum.qs.backend.domain.enums.TaskStatus;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "tasks")
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
 public class Task {
 
     @Id
@@ -20,21 +18,24 @@ public class Task {
     @Column(nullable = false)
     private String title;
 
+    @Column(length = 5000)
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    @Builder.Default
+    @Column(nullable = false)
     private TaskStatus status = TaskStatus.TO_DO;
 
-    @Column(name = "estimated_points")
-    private Integer estimatedPoints;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "assigned_account_id", foreignKey = @ForeignKey(name = "fk_tasks_assigned_account"))
-    private Account assignedAccount;
-
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "sprint_id", nullable = false, foreignKey = @ForeignKey(name = "fk_tasks_sprint"))
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "sprint_id", nullable = false)
     private Sprint sprint;
+
+
+    @ManyToOne
+    @JoinColumn(name = "scrum_team_id")
+    private ScrumTeam scrumTeam;
+
+
+    @ManyToOne
+    @JoinColumn(name = "assignee_id")
+    private Account assignee;
 }

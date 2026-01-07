@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TeamAssignmentRepository extends JpaRepository<TeamAssignment, Long> {
-    List<TeamAssignment> findByScrumTeamId(Long scrumTeamId);
+    List<TeamAssignment> findByTeamId(Long teamId);
     List<TeamAssignment> findByAccountId(Long accountId);
-    Optional<TeamAssignment> findByScrumTeamIdAndAccountId(Long scrumTeamId, Long accountId);
+    Optional<TeamAssignment> findByTeamIdAndAccountId(Long teamId, Long accountId);
 }
