@@ -24,10 +24,40 @@ public class SprintController {
         this.workspaceRepo = workspaceRepo;
     }
 
+    // -----------------------------
+    // ENDPOINTS ALINHADOS COM O PROJETO BASE ("antigo")
+    // -----------------------------
+
+    @GetMapping("/project/{projectId}")
+    public List<Sprint> getSprintsByProject(@PathVariable Long projectId) {
+        return sprintService.listByProjectWorkspace(projectId);
+    }
+
+    @PostMapping("/project/{projectId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Sprint createSprint(@PathVariable Long projectId, @RequestBody Sprint sprint) {
+        ProjectWorkspace project = workspaceRepo.findById(projectId)
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + projectId));
+
+        sprint.setId(null);
+        sprint.setProjectWorkspace(project);
+        return sprintService.create(sprint);
+    }
+
+    @DeleteMapping("/{sprintId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteSprint(@PathVariable Long sprintId) {
+        sprintService.delete(sprintId);
+    }
+
+    // -----------------------------
+    // ENDPOINTS ADICIONAIS (mantidos para compatibilidade do teu projeto)
+    // -----------------------------
+
     @GetMapping
-    public List<Sprint> listAll(@RequestParam(required = false) Long workspaceId) {
-        if (workspaceId == null) return sprintService.listAll();
-        return sprintService.listByProjectWorkspace(workspaceId);
+    public List<Sprint> listAll(@RequestParam(required = false) Long projectWorkspaceId) {
+        if (projectWorkspaceId != null) return sprintService.listByProjectWorkspace(projectWorkspaceId);
+        return sprintService.listAll();
     }
 
     @GetMapping("/{id}")
@@ -38,36 +68,31 @@ public class SprintController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Sprint create(@Valid @RequestBody SprintRequest req) {
-        ProjectWorkspace ws = workspaceRepo.findById(req.workspaceId())
-                .orElseThrow(() -> new ResourceNotFoundException("ProjectWorkspace not found: " + req.workspaceId()));
+        ProjectWorkspace project = workspaceRepo.findById(req.projectWorkspaceId())
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + req.projectWorkspaceId()));
 
         Sprint s = new Sprint();
-        s.setTitle(req.title());
+        s.setName(req.name());
+        s.setGoal(req.goal());
         s.setStartDate(req.startDate());
         s.setEndDate(req.endDate());
-        s.setProjectWorkspace(ws);
+        s.setProjectWorkspace(project);
 
         return sprintService.create(s);
     }
 
     @PutMapping("/{id}")
     public Sprint update(@PathVariable Long id, @Valid @RequestBody SprintRequest req) {
+        ProjectWorkspace project = workspaceRepo.findById(req.projectWorkspaceId())
+                .orElseThrow(() -> new ResourceNotFoundException("Project not found: " + req.projectWorkspaceId()));
+
         Sprint s = sprintService.getById(id);
-
-        ProjectWorkspace ws = workspaceRepo.findById(req.workspaceId())
-                .orElseThrow(() -> new ResourceNotFoundException("ProjectWorkspace not found: " + req.workspaceId()));
-
-        s.setTitle(req.title());
+        s.setName(req.name());
+        s.setGoal(req.goal());
         s.setStartDate(req.startDate());
         s.setEndDate(req.endDate());
-        s.setProjectWorkspace(ws);
+        s.setProjectWorkspace(project);
 
         return sprintService.update(id, s);
-    }
-
-    @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        sprintService.delete(id);
     }
 }

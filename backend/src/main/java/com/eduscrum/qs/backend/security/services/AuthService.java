@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -79,9 +80,24 @@ public class AuthService {
 
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        // Versão minimalista (normalmente compila em quase todos os projetos):
-        // Se o teu JwtResponse tiver mais campos, ajusta o construtor.
-        return new JwtResponse(jwt);
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof AccountDetails details) {
+            var roles = details.getAuthorities().stream()
+                    .map(a -> a.getAuthority())
+                    .toList();
+
+            return new JwtResponse(
+                    jwt,
+                    details.getId(),
+                    details.getName(),
+                    details.getUsername(),
+                    roles
+            );
+        }
+
+        // Fallback (não esperado) - mantém token e campos nulos
+        return new JwtResponse(jwt, null, null, authentication.getName(), List.of());
     }
 
     private UserRoleType parseRole(String raw) {

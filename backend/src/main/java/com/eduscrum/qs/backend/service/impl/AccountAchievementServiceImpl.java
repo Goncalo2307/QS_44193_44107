@@ -42,7 +42,7 @@ public class AccountAchievementServiceImpl implements AccountAchievementService 
     // Mantém-se aqui porque é útil e já tens repo.findByAccountIdOrderByAssignedAtDesc(...)
     @Transactional(readOnly = true)
     public List<AccountAchievement> listByAccount(Long accountId) {
-        return repo.findByAccountIdOrderByAssignedAtDesc(accountId);
+        return repo.findByAccount_IdOrderByAssignedAtDesc(accountId);
     }
 
     @Override

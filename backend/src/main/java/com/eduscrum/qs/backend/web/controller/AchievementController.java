@@ -94,7 +94,7 @@ public class AchievementController {
         Achievement ach = achievementRepo.findById(req.achievementId())
                 .orElseThrow(() -> new ResourceNotFoundException("Achievement not found: " + req.achievementId()));
 
-        if (accountAchievementRepo.existsByAccountIdAndAchievementId(req.accountId(), req.achievementId())) {
+        if (accountAchievementRepo.existsByAccount_IdAndAchievement_Id(req.accountId(), req.achievementId())) {
             throw new ConflictException("Achievement already granted to this account.");
         }
 

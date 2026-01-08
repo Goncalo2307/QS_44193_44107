@@ -8,7 +8,6 @@ public interface AchievementService {
     Achievement create(Achievement achievement);
     Achievement getById(Long id);
     List<Achievement> listAll();
-    List<Achievement> listByCreator(Long teacherId);
     Achievement update(Long id, Achievement updated);
     void delete(Long id);
 }

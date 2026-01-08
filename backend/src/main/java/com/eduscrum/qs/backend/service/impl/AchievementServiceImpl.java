@@ -39,12 +39,6 @@ public class AchievementServiceImpl implements AchievementService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public List<Achievement> listByCreator(Long teacherId) {
-        return repo.findByCreatedById(teacherId);
-    }
-
-    @Override
     public Achievement update(Long id, Achievement updated) {
         Achievement existing = getById(id);
         BeanUtils.copyProperties(updated, existing, "id");

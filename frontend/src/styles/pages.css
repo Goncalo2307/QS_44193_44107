@@ -1,0 +1,33 @@
+.page { display: grid; gap: 18px; }
+.pageHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.headerRight { display: flex; gap: 10px; align-items: center; }
+.card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.10); border-radius: 18px; padding: 18px; box-shadow: 0 8px 22px rgba(0,0,0,0.25); }
+.card.subtle { background: rgba(255,255,255,0.02); }
+.grid { display: grid; grid-template-columns: 1fr; gap: 18px; }
+@media (min-width: 1100px) { .grid { grid-template-columns: 1fr 1fr; } }
+.grid2 { display: grid; grid-template-columns: 1fr; gap: 12px; }
+@media (min-width: 900px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+.stack { display: grid; gap: 12px; }
+.actions { display: flex; align-items: end; }
+.alert { padding: 10px 12px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.10); background: rgba(255,255,255,0.03); }
+.alert.error { background: rgba(255,70,70,0.12); border-color: rgba(255,70,70,0.30); }
+.alert.ok { background: rgba(70,255,160,0.12); border-color: rgba(70,255,160,0.30); }
+.list { display: grid; gap: 10px; margin-top: 10px; }
+.listRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px; border-radius: 14px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); text-decoration: none; color: inherit; }
+.listRow:hover { background: rgba(255,255,255,0.05); }
+.listRow.compact { padding: 10px; }
+.listRow.selected { border-color: rgba(124,92,255,0.5); background: rgba(124,92,255,0.12); }
+.rowMain { display: grid; gap: 3px; }
+.rowTitle { font-weight: 800; }
+.rowSub { font-size: 13px; }
+.rowMeta { font-size: 12px; }
+.tableWrap { overflow: auto; margin-top: 10px; }
+.table { width: 100%; border-collapse: collapse; }
+.table th, .table td { padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); vertical-align: top; }
+.table th { text-align: left; font-size: 12px; opacity: 0.8; }
+.chip { font-size: 12px; padding: 2px 8px; border-radius: 999px; background: rgba(124,92,255,0.18); border: 1px solid rgba(124,92,255,0.35); margin-left: 8px; }
+.linkButton { all: unset; cursor: pointer; width: 100%; display: flex; }
+.kv { display: grid; grid-template-columns: 120px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.kv:last-child { border-bottom: none; }
+.k { opacity: 0.75; }
+.v { font-weight: 700; }

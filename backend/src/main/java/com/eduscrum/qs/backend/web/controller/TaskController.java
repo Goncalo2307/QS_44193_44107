@@ -1,10 +1,11 @@
 package com.eduscrum.qs.backend.web.controller;
 
 import com.eduscrum.qs.backend.domain.enums.TaskStatus;
-import com.eduscrum.qs.backend.domain.model.*;
+import com.eduscrum.qs.backend.domain.model.Account;
+import com.eduscrum.qs.backend.domain.model.Sprint;
+import com.eduscrum.qs.backend.domain.model.Task;
 import com.eduscrum.qs.backend.exception.ResourceNotFoundException;
 import com.eduscrum.qs.backend.repository.AccountRepository;
-import com.eduscrum.qs.backend.repository.ScrumTeamRepository;
 import com.eduscrum.qs.backend.repository.SprintRepository;
 import com.eduscrum.qs.backend.service.TaskService;
 import com.eduscrum.qs.backend.web.dto.request.TaskRequest;
@@ -20,21 +21,55 @@ public class TaskController {
 
     private final TaskService taskService;
     private final SprintRepository sprintRepo;
-    private final ScrumTeamRepository teamRepo;
     private final AccountRepository accountRepo;
 
-    public TaskController(TaskService taskService, SprintRepository sprintRepo, ScrumTeamRepository teamRepo, AccountRepository accountRepo) {
+    public TaskController(TaskService taskService, SprintRepository sprintRepo, AccountRepository accountRepo) {
         this.taskService = taskService;
         this.sprintRepo = sprintRepo;
-        this.teamRepo = teamRepo;
         this.accountRepo = accountRepo;
     }
 
+    // -----------------------------
+    // ENDPOINTS ALINHADOS COM O PROJETO BASE ("antigo")
+    // -----------------------------
+
+    @GetMapping("/sprint/{sprintId}")
+    public List<Task> getTasksBySprint(@PathVariable Long sprintId) {
+        return taskService.listBySprint(sprintId);
+    }
+
+    @PostMapping("/sprint/{sprintId}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Task createTask(@PathVariable Long sprintId, @RequestBody Task task) {
+        Sprint sprint = sprintRepo.findById(sprintId)
+                .orElseThrow(() -> new ResourceNotFoundException("Sprint not found: " + sprintId));
+
+        task.setId(null);
+        task.setSprint(sprint);
+        return taskService.create(task);
+    }
+
+    @PutMapping("/status/{taskId}")
+    public Task updateTaskStatus(@PathVariable Long taskId, @RequestParam TaskStatus newStatus) {
+        return taskService.updateStatus(taskId, newStatus);
+    }
+
+    @PutMapping("/assign/{taskId}/user/{userId}")
+    public Task assignTaskToUser(@PathVariable Long taskId, @PathVariable Long userId) {
+        return taskService.assignTaskToUser(taskId, userId);
+    }
+
+    // -----------------------------
+    // ENDPOINTS ADICIONAIS (mantidos para compatibilidade do teu projeto)
+    // -----------------------------
+
     @GetMapping
-    public List<Task> listAll(@RequestParam(required = false) Long sprintId,
-                              @RequestParam(required = false) Long assigneeId) {
+    public List<Task> listAll(
+            @RequestParam(required = false) Long sprintId,
+            @RequestParam(required = false) Long assignedUserId
+    ) {
         if (sprintId != null) return taskService.listBySprint(sprintId);
-        if (assigneeId != null) return taskService.listByAssignee(assigneeId);
+        if (assignedUserId != null) return taskService.listByAssignedUser(assignedUserId);
         return taskService.listAll();
     }
 
@@ -50,21 +85,16 @@ public class TaskController {
                 .orElseThrow(() -> new ResourceNotFoundException("Sprint not found: " + req.sprintId()));
 
         Task t = new Task();
-        t.setSprint(sprint);
         t.setTitle(req.title());
         t.setDescription(req.description());
-        t.setStatus(req.status() == null ? TaskStatus.TO_DO : req.status());
+        if (req.status() != null) t.setStatus(req.status());
+        t.setEstimatedPoints(req.estimatedPoints());
+        t.setSprint(sprint);
 
-        if (req.scrumTeamId() != null) {
-            ScrumTeam team = teamRepo.findById(req.scrumTeamId())
-                    .orElseThrow(() -> new ResourceNotFoundException("ScrumTeam not found: " + req.scrumTeamId()));
-            t.setScrumTeam(team);
-        }
-
-        if (req.assigneeId() != null) {
-            Account assignee = accountRepo.findById(req.assigneeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Account not found: " + req.assigneeId()));
-            t.setAssignee(assignee);
+        if (req.assignedUserId() != null) {
+            Account user = accountRepo.findById(req.assignedUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Account not found: " + req.assignedUserId()));
+            t.setAssignedUser(user);
         }
 
         return taskService.create(t);
@@ -72,39 +102,25 @@ public class TaskController {
 
     @PutMapping("/{id}")
     public Task update(@PathVariable Long id, @Valid @RequestBody TaskRequest req) {
-        Task existing = taskService.getById(id);
+        Task t = taskService.getById(id);
 
         Sprint sprint = sprintRepo.findById(req.sprintId())
                 .orElseThrow(() -> new ResourceNotFoundException("Sprint not found: " + req.sprintId()));
 
-        existing.setSprint(sprint);
-        existing.setTitle(req.title());
-        existing.setDescription(req.description());
-        if (req.status() != null) existing.setStatus(req.status());
+        t.setTitle(req.title());
+        t.setDescription(req.description());
+        if (req.status() != null) t.setStatus(req.status());
+        t.setEstimatedPoints(req.estimatedPoints());
+        t.setSprint(sprint);
 
-        if (req.scrumTeamId() != null) {
-            ScrumTeam team = teamRepo.findById(req.scrumTeamId())
-                    .orElseThrow(() -> new ResourceNotFoundException("ScrumTeam not found: " + req.scrumTeamId()));
-            existing.setScrumTeam(team);
+        if (req.assignedUserId() != null) {
+            Account user = accountRepo.findById(req.assignedUserId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Account not found: " + req.assignedUserId()));
+            t.setAssignedUser(user);
         } else {
-            existing.setScrumTeam(null);
+            t.setAssignedUser(null);
         }
 
-        if (req.assigneeId() != null) {
-            Account assignee = accountRepo.findById(req.assigneeId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Account not found: " + req.assigneeId()));
-            existing.setAssignee(assignee);
-        } else {
-            existing.setAssignee(null);
-        }
-
-        return taskService.update(id, existing);
-    }
-
-    @PatchMapping("/{id}/status")
-    public Task updateStatus(@PathVariable Long id, @RequestParam TaskStatus status) {
-        Task t = taskService.getById(id);
-        t.setStatus(status);
         return taskService.update(id, t);
     }
 

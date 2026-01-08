@@ -8,6 +8,7 @@ import com.eduscrum.qs.backend.service.ProjectWorkspaceService;
 import com.eduscrum.qs.backend.web.dto.request.WorkspaceRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,6 +37,7 @@ public class ProjectWorkspaceController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public ProjectWorkspace create(@Valid @RequestBody WorkspaceRequest req) {
         AcademicCourse course = courseRepo.findById(req.courseId())
@@ -50,6 +52,7 @@ public class ProjectWorkspaceController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
     public ProjectWorkspace update(@PathVariable Long id, @Valid @RequestBody WorkspaceRequest req) {
         ProjectWorkspace existing = workspaceService.getById(id);
 
@@ -64,6 +67,7 @@ public class ProjectWorkspaceController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('TEACHER','ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
         workspaceService.delete(id);

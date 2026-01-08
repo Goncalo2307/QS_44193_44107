@@ -25,17 +25,13 @@ public class Task {
     @Column(nullable = false)
     private TaskStatus status = TaskStatus.TO_DO;
 
-    @ManyToOne(optional = false)
+    private Integer estimatedPoints;
+
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "sprint_id", nullable = false)
     private Sprint sprint;
 
-
-    @ManyToOne
-    @JoinColumn(name = "scrum_team_id")
-    private ScrumTeam scrumTeam;
-
-
-    @ManyToOne
-    @JoinColumn(name = "assignee_id")
-    private Account assignee;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "assigned_user_id")
+    private Account assignedUser;
 }
