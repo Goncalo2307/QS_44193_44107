@@ -7,7 +7,7 @@ import { createTeam, getTeamByProject, listMembers, addMember, removeMember } fr
 import { useAuth } from "../auth/AuthContext";
 import "../styles/pages.css";
 
-const STATUS_OPTIONS = ["TODO", "IN_PROGRESS", "DONE"];
+const STATUS_OPTIONS = ["TO_DO", "IN_PROGRESS", "DONE"];
 const SCRUM_ROLE_OPTIONS = ["SCRUM_MASTER", "PRODUCT_OWNER", "DEVELOPER"];
 
 export default function ProjectPage() {
@@ -141,7 +141,7 @@ export default function ProjectPage() {
       await createTask(selectedSprintId, {
         title: tTitle,
         description: tDesc,
-        status: "TODO",
+        status: "TO_DO",
         estimatedPoints: Number(tPoints),
       });
       setTTitle(""); setTDesc(""); setTPoints(1);
